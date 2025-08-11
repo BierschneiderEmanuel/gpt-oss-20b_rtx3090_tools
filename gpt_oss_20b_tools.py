@@ -1,5 +1,7 @@
 
-# download all files from https://huggingface.co/openai/gpt-oss-20b/tree/main except folder original and metal from this and save to /home/usr/openai/gpt-oss-20b_mxfp4
+
+# git clone https://github.com/BierschneiderEmanuel/gpt-oss-20b_rtx3090_tools.git
+# download all files from https://huggingface.co/openai/gpt-oss-20b/tree/main except folder original and metal from this and save to /home/usr/gpt-oss-20b_rtx3090_tools/openai/gpt-oss-20b_mxfp4
 # pip install git+https://github.com/triton-lang/triton.git@main#subdirectory=python/triton_kernels
 # pip install git+https://github.com/huggingface/transformers.git 
 # pip install --upgrade torch
