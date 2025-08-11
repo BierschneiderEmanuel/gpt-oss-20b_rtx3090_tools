@@ -315,7 +315,7 @@ embeddings_store = HuggingFaceEmbeddings(
 )
 web_text_vectorstore: Any = Field(default=None)
 try:
-    web_text_vectorstore = FAISS.load_local("./gpt-oss/books/lorem_ipsum/vectorstore/vectorstore.db", embeddings_store, allow_dangerous_deserialization=True)
+    web_text_vectorstore = FAISS.load_local("~/gpt-oss-20b_rtx3090_tools/books/lorem_ipsum/vectorstore/vectorstore.db", embeddings_store, allow_dangerous_deserialization=True)
 except Exception as e:
     print("Error: Loading vectorstore failed:", e)
 # Connect query to FAISS index using a retriever
