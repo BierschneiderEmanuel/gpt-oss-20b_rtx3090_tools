@@ -16,7 +16,7 @@ from langchain.vectorstores import FAISS
 print (transformers.__version__) #4.56.0.dev0
 print (torch.__version__) #2.7.1+cu126 or 2.8.0+cu128
 
-model_name = "~/gpt-oss-20b_rtx3090_tools/openai/gpt-oss-20b_mxfp4"
+model_name = "./gpt-oss-20b_rtx3090_tools/openai/gpt-oss-20b_mxfp4"
 
 
 from typing import Optional, List, Mapping, Any
@@ -118,8 +118,8 @@ class ExecutePythonCode(BaseTool):
                     print("CODE FOUND")
                     python_code_match = python_code_match[0].replace("\\n", "\n")
                 else:
-                    pattern = r"^((?:(?:import|from) .*\n)+)"
-                    match = re.search(pattern, response, re.MULTILINE)
+                    pattern = r"^((?:(?:import|from) .*\n)+.*)"
+                    match = re.match(pattern, response, re.DOTALL)
                     if match:
                         python_code_match = match.group(1)
                         print("IMPORT BLOCK FOUND")
@@ -151,7 +151,6 @@ class ExecutePythonCode(BaseTool):
                                 print(f"Module name parsed: {module_name}")
                                 print(f"Trying to install: {module_name}")
                                 try:
-                                    my_stdout = StringIO()
                                     result = subprocess.run(
                                         ["pip", "install", module_name],
                                         capture_output=True,
@@ -164,8 +163,8 @@ class ExecutePythonCode(BaseTool):
                                     print("Error output:", error.stderr)
                                     return f"An exception occurred: {error}"
                         else:
-                            print("An exception occurred:", error)
-                            return (f"An exception occurred: {error}")
+                            print("ExecutePythonCode exception occurred:", error)
+                            return (f"ExecutePythonCode exception occurred: {error}")
         except Exception:
             print("This is not a valid python code search syntax. Try a different string based syntax.")
             return "This is not a valid python code search syntax. Try a different string based syntax."
@@ -260,38 +259,30 @@ from langchain.tools.render import render_text_description_and_args
 tool_input = render_text_description_and_args(tools)
 print(tool_input)
 
-system="""
-You are designed to solve tasks. Each task requires multiple steps that are represented by a single markdown code snippet of a single json blob.
-The json structure should contain the following keys:
-thought -> your thoughts
-action -> name of a tool
-action_input -> a string of parameter to send to the tool
+system = """
+You are a task-solving agent.  
+Every step is a single JSON code block inside markdown triple backticks.  
+The JSON has exactly these keys:
+- thought: your reasoning
+- action: name of ONE tool
+- action_input: the parameter for that tool
 
-These are the tools you can use: {tool_names}.
-Only use one tool at a time.
-These are the tools descriptions:
+Available tools: {tool_names}  
+Descriptions: {tools}  
 
-{tools}
-
-If you have enough information to answer the query use the tool "Final Answer". Its parameter is the solution.
-If there is not enough information, keep trying.
-
+Rules:
+- Use ONE tool at a time.
+- If you can fully answer, use tool "Final Answer" with the solution in action_input.
+- If you lack info, choose another tool to gather it.
+- End every JSON block with the word STOP on a new line.
+- Never add extra text outside the JSON block + STOP.
 """
 
-human="""
-Add the word "STOP" after each markdown snippet. Example:
+human = """
+Query: "{input}"  
+Write only the **next** step needed to solve it based on previous tool outputs.
 
-```json
-{{"thought": "<your thoughts>",
- "action": "<tool name or Final Answer to give a final answer>",
- "action_input": "<tool parameter or the final output>"}}
-```
-STOP
-
-This is my query="{input}". Write only the next step needed to solve it.
-Your answer should be based in the previous tools executions, even if you think you know the answer.
-
-These were the previous steps given to solve this query and the information you already gathered:
+Previous steps & gathered info:
 """
 
 from langchain.agents import create_json_chat_agent, AgentExecutor
@@ -315,7 +306,7 @@ embeddings_store = HuggingFaceEmbeddings(
 )
 web_text_vectorstore: Any = Field(default=None)
 try:
-    web_text_vectorstore = FAISS.load_local("~/gpt-oss-20b_rtx3090_tools/books/lorem_ipsum/vectorstore/vectorstore.db", embeddings_store, allow_dangerous_deserialization=True)
+    web_text_vectorstore = FAISS.load_local("./gpt-oss-20b_rtx3090_tools/books/lorem_ipsum/vectorstore/vectorstore.db", embeddings_store, allow_dangerous_deserialization=True)
 except Exception as e:
     print("Error: Loading vectorstore failed:", e)
 # Connect query to FAISS index using a retriever
