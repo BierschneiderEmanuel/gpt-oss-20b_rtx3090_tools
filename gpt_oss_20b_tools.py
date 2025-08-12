@@ -94,9 +94,9 @@ class CustomLLMGptOss(LLM):
 
 
 import re
-from typing import Optional, Type
-from langchain.pydantic_v1 import BaseModel, Field
-from langchain.tools import BaseTool, StructuredTool, tool
+from typing import Optional
+from langchain.pydantic_v1 import Field
+from langchain.tools import BaseTool
 import subprocess
 from io import StringIO
 from contextlib import redirect_stdout, redirect_stderr
@@ -209,32 +209,31 @@ class ExecuteLinuxShellCommand(BaseTool):
     description: str = "Only use this tool if you want to run a Linux or UNIX program on this computer. Only execute this tool if run a shell command!"
 
     def _run(self, command: str):
-        try:
-            if len(command) != 0:
-                if command != "":
-                    print(command)
-                print("Command found")
-                try:
-                    # Using subprocess to execute command
-                    result = subprocess.run(['sh', command], shell=True, capture_output=True, text=True, check=True, timeout=20)
-                    print(f"Executing: {command}")
-                    print(result.stdout)
-                    return result.stdout
-                except subprocess.CalledProcessError as e:
-                    error_msg = f"Error running command: {str(e)}"
-                    print(error_msg)
-                    print("StdError output:", error.stderr)
-                    return error_msg
-                except Exception as error:
-                    error_msg = f"Error: {str(error)}"
-                    print(error_msg)
-                    print("StdError output:", error.stderr)
-                    return error_msg
-        except Exception:
-            return "This is not a valid python code search syntax. Try a different string based syntax."
+        if not command.strip():
+            return "Empty command."
 
-        def _arun(self, radius: int):
-            raise NotImplementedError("This tool does not support async")
+        try:
+            if command == "ls -R":
+                command = "ls"
+            print(f"Executing: {command}")
+            # Option 1: Safe split, no shell injection risk
+            result = subprocess.run(
+                command.split(),
+                capture_output=True,
+                text=True,
+                check=True,
+                timeout=20
+            )
+            return result.stdout
+        except subprocess.CalledProcessError as e:
+            return f"Error running command: {e.stderr or e.stdout}"
+        except subprocess.TimeoutExpired:
+            return f"Error: Command timed out after 20 seconds"
+        except Exception as error:
+            return f"Error: {str(error)}"
+
+    def _arun(self, *args, **kwargs):
+        raise NotImplementedError("Async not supported")
     
 executed_linux_shell_command_tool = ExecuteLinuxShellCommand()    
 
@@ -326,7 +325,8 @@ agent = create_json_chat_agent(
 )
 
 agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, memory=agent_memory, max_iterations=50, handle_parsing_errors=True)
-read_text_to_be_split = agent_executor.invoke({"input": "Write a complete performance optimized python program to calc prime numbers and prove it using the ExecutePythonCode Tool for the first 1008 numbers?"})
+#read_text_to_be_split = agent_executor.invoke({"input": "Write a complete performance optimized python program to calc prime numbers and prove it using the ExecutePythonCode Tool for the first 1008 numbers?"})
+read_text_to_be_split = agent_executor.invoke({"input": "Write a complete performance optimized python program to run length encoding of ./README.md and prove the compression and decompression algorithm using the ExecutePythonCode tool!"})
 
 print("history " + "\n" + read_text_to_be_split['history'])
 print("output " + "\n" + read_text_to_be_split['output'])
