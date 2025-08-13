@@ -277,7 +277,7 @@ agent = create_json_chat_agent(
 )
 
 agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, memory=agent_memory, max_iterations=50, handle_parsing_errors=True)
-read_text_to_be_split = agent_executor.invoke({"input": "Write a complete performance optimized python program to calc prime numbers and prove it using the ExecutePythonCode Tool for the first 4711 numbers?"})
+read_text_to_be_split = agent_executor.invoke({"input": "Write a complete performance optimized python program to calc prime numbers and prove it using the ExecutePythonCode Tool for the first 100 numbers?"})
 
 print("history " + "\n" + read_text_to_be_split['history'])
 print("output " + "\n" + read_text_to_be_split['output'])
