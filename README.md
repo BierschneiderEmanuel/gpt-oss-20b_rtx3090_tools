@@ -15,7 +15,7 @@ git clone https://github.com/BierschneiderEmanuel/gpt-oss-20b_rtx3090_tools.git
     Download all files except the folders original and metal.
     Save them into:
 
-/home/usr/gpt-oss-20b_rtx3090_tools/openai/gpt-oss-20b_mxfp4
+~/gpt-oss-20b_rtx3090_tools/openai/gpt-oss-20b_mxfp4
 
     Install Triton kernels:
 
@@ -28,10 +28,6 @@ pip install transformers-v4.55.0-GLM-4.5V-preview==4.56.0.dev0
     Upgrade Torch:
 
 pip install --upgrade torch
-
-    (Optional) Single-line install for all deps:
-
-pip install git+https://github.com/huggingface/transformers triton==3.4 git+https://github.com/triton-lang/triton.git@main#subdirectory=python/triton_kernels
 
     Install additional requirements:
 
@@ -79,13 +75,13 @@ Architecture Diagram
                     │
                     ▼
         ┌───────────────────────────────┐
-        │    LangChain JSON Agent        │
+        │    LangChain JSON Agent       │
         └───────────┬───────────────────┘
                     │
                     |───────────────────────────┐
                     ▼            ▼              ▼
                ┌────────────┐ ┌────────────┐ ┌────────────┐
-               │ ExecutePy  │ │ ShellCmd   │ │   RAG/FAISS │
+               │ ExecutePy  │ │ ShellCmd   │ │  RAG/FAISS │
                └──────┬─────┘ └──────┬─────┘ └──────┬─────┘
                       │              │              │
                       ├───────►  Returns  ─────► Returns 
