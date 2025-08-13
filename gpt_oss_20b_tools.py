@@ -7,7 +7,6 @@
 # pip install --upgrade torch
 # !pip install git+https://github.com/huggingface/transformers triton==3.4 git+https://github.com/triton-lang/triton.git@main#subdirectory=python/triton_kernels
 # optional pip install openai-harmony
-from transformers import AutoModelForCausalLM, AutoTokenizer
 import transformers
 import os
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
@@ -15,16 +14,12 @@ import torch
 from langchain.vectorstores import FAISS
 print (transformers.__version__) #4.56.0.dev0
 print (torch.__version__) #2.7.1+cu126 or 2.8.0+cu128
-
-model_name = "./gpt-oss-20b_rtx3090_tools/openai/gpt-oss-20b_mxfp4"
-
-
 from typing import Optional, List, Mapping, Any
 from langchain.callbacks.manager import CallbackManagerForLLMRun
 from langchain.llms.base import LLM
-import torch
 from typing import ClassVar
 from transformers import AutoModelForCausalLM, AutoTokenizer, PreTrainedModel, PreTrainedTokenizerBase
+model_name = "./gpt-oss-20b_rtx3090_tools/openai/gpt-oss-20b_mxfp4"
 
 class CustomLLMGptOss(LLM):
     AutoModelForCausalLM: ClassVar[type] = AutoModelForCausalLM
@@ -165,44 +160,14 @@ class ExecutePythonCode(BaseTool):
                         else:
                             print("ExecutePythonCode exception occurred:", error)
                             return (f"ExecutePythonCode exception occurred: {error}")
-        except Exception:
-            print("This is not a valid python code search syntax. Try a different string based syntax.")
+        except Exception as e:
+            print(f"This is not a valid python code search syntax. Try a different string based syntax. {e}")
             return "This is not a valid python code search syntax. Try a different string based syntax."
 
         def _arun(self, radius: int):
             raise NotImplementedError("This tool does not support async")
 execute_python_code_tool = ExecutePythonCode()    
 
-class ReadFile(BaseTool):
-    name: str = "ReadFile"
-    description: str = "Only use this tool if you want to read a file content on this computer. Only execute this tool if you want to read a file!"
-
-    def _run(self, filename: str):
-        try:
-            if len(filename) != 0:
-                if filename != "":
-                    print(filename)
-                print("Filename found")
-                try:
-                    # Using subprocess to execute 'cat' command
-                    result = subprocess.run(['cat', filename],  capture_output=True,  text=True,  check=True)
-                    print(f"Reading file: {filename}")
-                    print(result.stdout)
-                    return result.stdout
-                except subprocess.CalledProcessError as e:
-                    error_msg = f"Error reading file with cat: {str(e)}"
-                    print(error_msg)
-                    return error_msg
-                except Exception as error:
-                    error_msg = f"Error: {str(error)}"
-                    print(error_msg)
-                    return error_msg
-        except Exception:
-            return "This is not a valid python code search syntax. Try a different string based syntax."
-
-        def _arun(self, radius: int):
-            raise NotImplementedError("This tool does not support async")
-read_file_tool = ReadFile()    
 
 class ExecuteLinuxShellCommand(BaseTool):
     name: str = "ExecuteLinuxShellCommand"
@@ -246,13 +211,9 @@ model = AutoModelForCausalLM.from_pretrained(
     offload_folder="offload",    # Folder for CPU/NVMe offload
     offload_state_dict=True      # Allows CPU storage of weights
 )
- 
 
 llm = CustomLLMGptOss(model=model, tokenizer=tokenizer)
-
-from langchain.tools import Tool
-tools = [read_file_tool, execute_python_code_tool, executed_linux_shell_command_tool]
-
+tools = [execute_python_code_tool, executed_linux_shell_command_tool]
 
 from langchain.tools.render import render_text_description_and_args
 tool_input = render_text_description_and_args(tools)
@@ -325,8 +286,7 @@ agent = create_json_chat_agent(
 )
 
 agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, memory=agent_memory, max_iterations=50, handle_parsing_errors=True)
-#read_text_to_be_split = agent_executor.invoke({"input": "Write a complete performance optimized python program to calc prime numbers and prove it using the ExecutePythonCode Tool for the first 1008 numbers?"})
-read_text_to_be_split = agent_executor.invoke({"input": "Write a complete performance optimized python program to run length encoding of ./README.md and prove the compression and decompression algorithm using the ExecutePythonCode tool!"})
+read_text_to_be_split = agent_executor.invoke({"input": "Write a complete performance optimized python program to calc prime numbers and prove it using the ExecutePythonCode Tool for the first 1008 numbers?"})
 
 print("history " + "\n" + read_text_to_be_split['history'])
 print("output " + "\n" + read_text_to_be_split['output'])
