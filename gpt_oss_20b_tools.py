@@ -1,25 +1,19 @@
 
-
-# git clone https://github.com/BierschneiderEmanuel/gpt-oss-20b_rtx3090_tools.git
-# download all files from https://huggingface.co/openai/gpt-oss-20b/tree/main except folder original and metal from this and save to /home/usr/gpt-oss-20b_rtx3090_tools/openai/gpt-oss-20b_mxfp4
-# pip install git+https://github.com/triton-lang/triton.git@main#subdirectory=python/triton_kernels
-# pip install git+https://github.com/huggingface/transformers.git 
-# pip install --upgrade torch
-# !pip install git+https://github.com/huggingface/transformers triton==3.4 git+https://github.com/triton-lang/triton.git@main#subdirectory=python/triton_kernels
-# optional pip install openai-harmony
 import transformers
 import os
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 import torch
 from langchain.vectorstores import FAISS
-print (transformers.__version__) #4.56.0.dev0
-print (torch.__version__) #2.7.1+cu126 or 2.8.0+cu128
 from typing import Optional, List, Mapping, Any
 from langchain.callbacks.manager import CallbackManagerForLLMRun
 from langchain.llms.base import LLM
 from typing import ClassVar
 from transformers import AutoModelForCausalLM, AutoTokenizer, PreTrainedModel, PreTrainedTokenizerBase
+
 model_name = "./gpt-oss-20b_rtx3090_tools/openai/gpt-oss-20b_mxfp4"
+
+print (transformers.__version__) #4.56.0.dev0
+print (torch.__version__) #2.7.1+cu126 or 2.8.0+cu128
 
 class CustomLLMGptOss(LLM):
     AutoModelForCausalLM: ClassVar[type] = AutoModelForCausalLM
@@ -86,7 +80,6 @@ class CustomLLMGptOss(LLM):
     @property
     def _identifying_params(self) -> Mapping[str, Any]:
         return {"model": self.model}
-
 
 import re
 from typing import Optional
@@ -167,7 +160,6 @@ class ExecutePythonCode(BaseTool):
         def _arun(self, radius: int):
             raise NotImplementedError("This tool does not support async")
 execute_python_code_tool = ExecutePythonCode()    
-
 
 class ExecuteLinuxShellCommand(BaseTool):
     name: str = "ExecuteLinuxShellCommand"
