@@ -1,0 +1,7 @@
+langchain
+langchain-core
+langchain-community
+faiss-cpu                    # use faiss-gpu if you want GPU vector search
+sentence-transformers        # HuggingFace embeddings
+pydantic<2                   # langchain pydantic_v1 compatibility
+accelerate

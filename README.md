@@ -23,7 +23,7 @@ pip install git+https://github.com/triton-lang/triton.git@main#subdirectory=pyth
 
     Install latest Transformers:
 
-pip install git+https://github.com/huggingface/transformers.git
+pip install transformers-v4.55.0-GLM-4.5V-preview==4.56.0.dev0
 
     Upgrade Torch:
 
@@ -82,13 +82,13 @@ Architecture Diagram
         │    LangChain JSON Agent        │
         └───────────┬───────────────────┘
                     │
-       ┌────────────┼──────────────────────────┐
-       ▼            ▼            ▼              ▼
-┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐
-│ ReadFile   │ │ ExecutePy  │ │ ShellCmd   │ │   RAG/FAISS │
-└─────┬──────┘ └──────┬─────┘ └──────┬─────┘ └──────┬─────┘
-      │               │              │              │
-      └─────► Returns ├───────► Returns ├─────► Returns │
+                    ┼──────────────────────────┐
+                    ▼            ▼              ▼
+               ┌────────────┐ ┌────────────┐ ┌────────────┐
+               │ ExecutePy  │ │ ShellCmd   │ │   RAG/FAISS │
+               └──────┬─────┘ └──────┬─────┘ └──────┬─────┘
+                      │              │              │
+                      ├───────► Returns ├─────► Returns │
                       ▼              ▼              ▼
                 ┌─────────────────────────────────────┐
                 │ Final Answer to User                │
@@ -97,7 +97,7 @@ Architecture Diagram
 Example Run
 
 read_text_to_be_split = agent_executor.invoke({
-    "input": "Write a complete performance optimized python program to calc prime numbers and prove it using the ExecutePythonCode Tool for the first 1008 numbers?"
+    "input": "Write a complete performance optimized python program to calc prime numbers and prove it using the ExecutePythonCode Tool for the first 4711 numbers?"
 })
 
 print("history:\n", read_text_to_be_split['history'])
