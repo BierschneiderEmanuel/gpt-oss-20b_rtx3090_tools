@@ -10,7 +10,7 @@ from langchain.llms.base import LLM
 from typing import ClassVar
 from transformers import AutoModelForCausalLM, AutoTokenizer, PreTrainedModel, PreTrainedTokenizerBase
 
-model_name = "./openai/gpt-oss-20b_mxfp4"
+model_name = "./gpt-oss-20b_rtx3090_tools/openai/gpt-oss-20b_mxfp4"
 
 print (transformers.__version__) #4.56.0.dev0
 print (torch.__version__) #2.7.1+cu126 or 2.8.0+cu128
@@ -71,8 +71,6 @@ class CustomLLMGptOss(LLM):
         output = self.tokenizer.decode(outputs, skip_special_tokens=True).strip()
 
         if stop:
-            # for stop_token in output:
-            #     output = output.split(stop_token)[-1].strip()
             output = output.replace("\nSTOP\n", "")
             output = output.replace("STOP", "")
         return output
@@ -261,6 +259,7 @@ try:
     web_text_vectorstore = FAISS.load_local("./gpt-oss-20b_rtx3090_tools/books/lorem_ipsum/vectorstore/vectorstore.db", embeddings_store, allow_dangerous_deserialization=True)
 except Exception as e:
     print("Error: Loading vectorstore failed:", e)
+
 # Connect query to FAISS index using a retriever
 retriever = web_text_vectorstore.as_retriever(
     search_type="similarity",
