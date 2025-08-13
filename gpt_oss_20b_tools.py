@@ -10,7 +10,7 @@ from langchain.llms.base import LLM
 from typing import ClassVar
 from transformers import AutoModelForCausalLM, AutoTokenizer, PreTrainedModel, PreTrainedTokenizerBase
 
-model_name = "./gpt-oss-20b_rtx3090_tools/openai/gpt-oss-20b_mxfp4"
+model_name = "./openai/gpt-oss-20b_mxfp4"
 
 print (transformers.__version__) #4.56.0.dev0
 print (torch.__version__) #2.7.1+cu126 or 2.8.0+cu128
