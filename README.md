@@ -51,8 +51,6 @@ The code in this repo does the following:
 
         ExecutePythonCode → Extracts and runs Python code in a sandbox, installing missing packages on the fly.
 
-        ReadFile → Reads local files using cat.
-
         ExecuteLinuxShellCommand → Runs shell commands.
 
     RAG with FAISS
